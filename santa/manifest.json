@@ -1,0 +1,17 @@
+{
+  "dxt_version": "0.1",
+  "name": "santa-extension",
+  "version": "1.0.0",
+  "description": "A simple MCP extension",
+  "author": {
+    "name": "Santa Panta"
+  },
+  "server": {                              
+    "type": "python",                      
+    "entry_point": "server/main.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["${__dirname}/server/main.py"]
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "dxt_version": "0.1",
+  "name": "ra-3",
+  "display_name": "Research Assistant MCP",
+  "version": "0.1.0",
+  "description": "Access my papers",
+  "long_description": "Access my papers and provide them as resources and tools",
+  "author": {
+    "name": "Hani Safadi",
+    "email": "hanisaf@gmail.com",
+    "url": "https://github.com/hanisaf"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "server/main.py",
+    "mcp_config": {
+      "command": "python",
+      "args": [
+        "${__dirname}/server/main.py",
+        "--workspace_directory=${user_config.workspace_directory}",
+        "--limit_text=${user_config.limit_text}",
+        "--chroma_db_path=${user_config.chroma_db_path}"
+      ],
+      "env": {
+        "DEBUG": "${user_config.debug_mode}",
+        "PYTHONPATH": "${__dirname}/server/lib"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "obtain_resource_content",
+      "description": "Obtain the text content of a file resource"
+    },
+    {
+      "name": "locate_relevant_resources",
+      "description": "Get the most relevant resource for a query"
+    }
+  ],
+  "keywords": ["file", "directory", "python", "management", "filesystem"],
+  "license": "MIT",
+  "user_config": {
+    "workspace_directory": {
+      "type": "directory",
+      "title": "Workspace Directory",
+      "description": "Directory to use as workspace",
+      "default": "~/Downloads/pdfs",
+      "required": true
+    },
+    "limit_text": {
+      "type": "number",
+      "title": "Limit Text",
+      "description": "Limit the number of characters read from each file (-1 for no limit). Useful if you have free tier",
+      "default": -1,
+      "required": true
+    },
+    "chroma_db_path": {
+      "type": "directory",
+      "title": "ChromaDB Path",
+      "description": "Path to the ChromaDB database directory for vector search",
+      "default": "~/Downloads/pdfs_db",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "python": ">=3.8.0 <4"
+    }
+  }
+}

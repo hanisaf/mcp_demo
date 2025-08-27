@@ -96,28 +96,41 @@ def locate_relevant_resources(query: str) -> str:
         # Query the ChromaDB collection
         results = chroma_collection.query(
             query_texts=[query],
-            n_results=10  # Get top 10 results
+            n_results=100  # Get top 10 results
         )
         
         if not results['documents'] or not results['documents'][0]:
             return "No relevant documents found in the database."
         
-        # Extract results and format them
-        documents = results['documents'][0]
+        # aggregate by filename using the min distance
+        # return up to 10 results, include only the filename and the min distance
+        # report the top candidates using these results
+        
+        # Extract results
         distances = results['distances'][0] if results['distances'] else []
         metadatas = results['metadatas'][0] if results['metadatas'] else []
         ids = results['ids'][0] if results['ids'] else []
         
-        lines = ["Top candidates:"]
-        
-        for i, (doc_id, distance, metadata) in enumerate(zip(ids, distances, metadatas)):
+        # Aggregate by filename, keeping the minimum distance for each file
+        filename_distances = {}
+        for doc_id, distance, metadata in zip(ids, distances, metadatas):
             # Extract filename from metadata or document ID
             filename = metadata.get('filename', doc_id) if metadata else doc_id
             
+            # Keep the minimum distance (best match) for each filename
+            if filename not in filename_distances or distance < filename_distances[filename]:
+                filename_distances[filename] = distance
+        
+        # Sort by distance (ascending - lower is better) and take top 10
+        sorted_files = sorted(filename_distances.items(), key=lambda x: x[1])[:10]
+        
+        lines = ["Top candidates:"]
+        for i, (filename, distance) in enumerate(sorted_files):
             # Convert distance to similarity score (lower distance = higher similarity)
             similarity_score = 1.0 - distance if distance is not None else 0.0
-            
             lines.append(f"{i}- filename: `{filename}` --- (similarity {similarity_score:.3f})")
+        
+
         
         return "\n".join(lines)
         

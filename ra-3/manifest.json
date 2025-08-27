@@ -29,13 +29,17 @@
   },
   "tools": [
     {
-      "name": "obtain_resource_content",
+      "name": "read_paper",
       "description": "Obtain the text content of a file resource"
     },
     {
-      "name": "locate_relevant_resources",
-      "description": "Get the most relevant resource for a query"
-    }
+      "name": "search_library",
+      "description": "Get the most relevant resource for a query by searching within the content. Useful for searching for a topic."
+    },
+    {
+      "name": "search_files",
+      "description": "Get the most relevant resource for a query by searching within the file names. Useful for searching for an author."
+    }    
   ],
   "keywords": ["file", "directory", "python", "management", "filesystem"],
   "license": "MIT",

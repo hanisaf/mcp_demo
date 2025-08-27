@@ -37,7 +37,7 @@ RESOURCE_INDEX: dict[str, dict] = {}
 
 
 @mcp.tool()
-def obtain_resource_content(path: str) -> str:
+def read_paper(path: str) -> str:
     """Obtain the text content of a file resource by its path."""
     file = Path(path)
     root = Path(args.workspace_directory).expanduser().resolve()
@@ -78,11 +78,67 @@ def obtain_resource_content(path: str) -> str:
         return f"Error reading file: {str(e)}"
 
 @mcp.tool()
-def locate_relevant_resources(query: str) -> str:
+def search_files(query: str) -> str:
+    """
+    Select the single most relevant resource by counting token overlap
+    between the query and the FILE NAME (basename). Returns the selected
+    resource first, followed by a short ranked list for transparency.
+    . Useful for searching for an author.
+    """
+
+    def tokenize(text: str):
+        return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
+
+    q_tokens = tokenize(query.lower())
+    if not q_tokens:
+        return "Query is empty."
+
+    candidates = []
+
+    if RESOURCE_INDEX:
+        for uri, meta in RESOURCE_INDEX.items():
+            name = meta.get("name") or uri
+            filename = Path(name).name
+            overlap = len(q_tokens & tokenize(filename.lower()))
+            candidates.append({
+                "score": overlap,
+                "uri": uri,
+                "meta": meta,
+                "filename": filename,
+            })
+    else:
+        return f"No resources available to search."
+
+
+    # Rank: higher overlap -> newer mtime (if available) -> shorter filename -> lex uri
+    def sort_key(item):
+        meta = item.get("meta", {})
+        try:
+            mtime = float(meta.get("mtime", 0))
+        except Exception:
+            mtime = 0.0
+        return (-item["score"], -mtime, len(item["filename"]), item["uri"])
+
+    candidates.sort(key=sort_key)
+
+    lines = [
+        "Top candidates:",
+    ]
+    for i, it in enumerate(candidates[:10], start=0):
+        meta = it.get("meta", {})
+        size = meta.get("size")
+        pages = meta.get("pages")
+        lines.append(f"{i}- filename: `{it['filename']}` --- (overlap {it['score']})")
+
+    return "\n".join(lines)
+
+@mcp.tool()
+def search_library(query: str) -> str:
     """
     Select the most relevant resources using vector similarity search
-    against the ChromaDB collection. Returns ranked results based on
+    against content of the resources. Returns ranked results based on
     semantic similarity to the query.
+    Useful for searching for a topic.
     """
     global chroma_client, chroma_collection
     

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # structure from https://github.com/anthropics/dxt/blob/main/examples/file-manager-python/server/main.py
 
-import re
+import re, sys
 import mimetypes
 import os
 import argparse
@@ -205,6 +205,7 @@ def register_file_resources(
     `workspace://<percent-encoded-relative-path>`.
     """
     root = Path(workspace).expanduser().resolve()
+    print("Registering resources in ", root, file=sys.stderr)
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Workspace does not exist or is not a directory: {workspace}")
 
@@ -300,18 +301,18 @@ def initialize_chromadb():
         collections = chroma_client.list_collections()
         if collections:
             chroma_collection = collections[0]
-            print(f"Connected to ChromaDB collection: {chroma_collection.name}")
+            print(f"Connected to ChromaDB collection: {chroma_collection.name}", file=sys.stderr)
         else:
-            print("Warning: No collections found in ChromaDB")
+            print("Warning: No collections found in ChromaDB", file=sys.stderr)
             
     except Exception as e:
-        print(f"Error initializing ChromaDB: {e}")
+        print(f"Error initializing ChromaDB: {e}", file=sys.stderr)
         chroma_client = None
         chroma_collection = None
 
 if __name__ == "__main__":
-    print("Starting Research Assistant MCP Server...")
-    print(args)
+    print("Starting Research Assistant MCP Server...", file=sys.stderr)
+    print(f"Arguments: `{args}`", file=sys.stderr)
     
     # Initialize ChromaDB
     initialize_chromadb()

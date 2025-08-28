@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # structure from https://github.com/anthropics/dxt/blob/main/examples/file-manager-python/server/main.py
 
-import re
+import re, sys
 import mimetypes
 import os
 import argparse
@@ -216,8 +216,8 @@ def register_file_resources(
             continue
 
 if __name__ == "__main__":
-    print("Starting Research Assistant MCP Server...")
-    print(args)
+    print("Starting Research Assistant MCP Server...", file=sys.stderr)
+    print(f"Workspace: {args.workspace}", file=sys.stderr)
     
     # Register workspace files as MCP resources
     register_file_resources(args.workspace_directory)

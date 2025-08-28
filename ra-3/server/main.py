@@ -18,9 +18,9 @@ from chromadb.config import Settings
 parser = argparse.ArgumentParser(description="Research Assistant MCP Server")
 parser.add_argument(
     "--workspace_directory", default=os.path.expanduser("~/Downloads/pdfs"))
-parser.add_argument("--limit_text", default=-1)
 parser.add_argument(
     "--chroma_db_path", default=os.path.expanduser("~/Projects/mcp_demo/pdfs_db"))
+parser.add_argument("--limit_text", default=-1)
 
 args = parser.parse_args()
 
@@ -313,12 +313,9 @@ def initialize_chromadb():
 if __name__ == "__main__":
     print("Starting Research Assistant MCP Server...", file=sys.stderr)
     print(f"Arguments: `{args}`", file=sys.stderr)
-    
-    # Initialize ChromaDB
-    initialize_chromadb()
-    
     # Register workspace files as MCP resources
     register_file_resources(args.workspace_directory)
-
+    # Initialize ChromaDB
+    initialize_chromadb()
     # Run the server
     mcp.run()

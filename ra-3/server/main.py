@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # structure from https://github.com/anthropics/dxt/blob/main/examples/file-manager-python/server/main.py
 
+import base64
 import re, sys
 import mimetypes
 import os
@@ -34,13 +35,46 @@ chroma_collection = None
 # In-memory index of registered resources for quick lookup/search
 # Key: URI, Value: dict(name, path, size, mtime, pages)
 RESOURCE_INDEX: dict[str, dict] = {}
+URI_INDEX: dict[str, str] = {}  # Key: display name, Value: URI
+RESOURCES: dict = {}
 
+# @mcp.tool()
+# def read_paper(path: str) :
+#     """Obtain the content of a file resource by its path."""
+#     try:
+#         uri = URI_INDEX[path]
+#         record = RESOURCE_INDEX[uri].copy()
+#         blob = base64.b64encode(RESOURCES[path]()).decode('utf-8')
+#         output = {
+#       "type": "embedded_resource",
+#       "resource": {
+#         "uri": uri,
+#         "mimeType": record["mime"],
+#         "blob": blob
+#       },
+#       "annotations": {
+#         "audience": ["user"]
+#       }
+#         }
+#         return output
+#     except Exception as e:
+#         return f"Error obtaining file {str}: {str(e)}"
+
+# @mcp.tool()
+# def load_paper(path: str) -> bytes:
+#     """Obtain the raw bytes of a file resource by its path."""
+#     try:
+#         uri = URI_INDEX[path]
+#         blob = RESOURCES[path]()
+#         return blob
+#     except Exception as e:
+#         return f"Error obtaining file {str}: {str(e)}"    
 
 @mcp.tool()
 def read_paper(path: str) -> str:
     """Obtain the text content of a file resource by its path."""
     file = Path(path)
-    root = Path(args.workspace_directory).expanduser().resolve()
+    
     # resolve path within root
     if not file.is_absolute():
         path_obj = root.joinpath(file).resolve()
@@ -223,6 +257,9 @@ def register_file_resources(
         def _file_resource() -> bytes:
             # Return raw bytes so binary files work too
             return target.read_bytes()
+        
+        RESOURCES[display_name] = _file_resource
+        URI_INDEX[display_name] = uri
         return _file_resource
 
     # Build a list of candidate paths honoring ignore rules
@@ -314,6 +351,8 @@ if __name__ == "__main__":
     print("Starting Research Assistant MCP Server...", file=sys.stderr)
     print(f"Arguments: `{args}`", file=sys.stderr)
     # Register workspace files as MCP resources
+    global root
+    root = Path(args.workspace_directory).expanduser().resolve()
     register_file_resources(args.workspace_directory)
     # Initialize ChromaDB
     initialize_chromadb()

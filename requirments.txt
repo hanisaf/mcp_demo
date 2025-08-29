@@ -1,0 +1,6 @@
+fastmcp
+mcp
+trio
+pypdf
+chromadb==1.0.20
+pydantic>=2.0.0

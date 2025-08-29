@@ -2,13 +2,13 @@
   "mcpServers": {
     "santa": {
       "command": "python",
-      "args": ["C:\\Users\\hanisaf\\Projects\\mcp_demo\\santa\\server\\main.py"],
+      "args": ["C:\\Users\\hanisaf\\Projects\\mcp_demo\\santa.py"],
       "env": {
       }
     },
     "research assistant": {
       "command": "python",
-      "args": ["C:\\Users\\hanisaf\\Projects\\mcp_demo\\ra-3\\server\\main.py",
+      "args": ["C:\\Users\\hanisaf\\Projects\\mcp_demo\\ra-3.py",
                 "--workspace_directory", "C:\\Users\\hanisaf\\Documents\\Mendeley Desktop", 
                 "--chroma_db_path", "C:\\Users\\hanisaf\\Dropbox\\claude_references",
                 "--limit_text", "-1"
